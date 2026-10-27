@@ -1,0 +1,94 @@
+/* =============================================================================
+   KARTU AGEN DAN ANIMASI AVATAR BLOB
+   ============================================================================= */
+.card {
+  position: absolute;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  background: var(--bg-card);
+  border: 2px solid color-mix(in srgb, var(--c) 45%, transparent);
+  border-radius: 46px 38px 44px 36px;
+  transition: transform var(--trans-med), border-color var(--trans-med), box-shadow var(--trans-med), background var(--trans-med);
+  z-index: 5;
+}
+
+.card.on {
+  border-color: var(--c);
+  box-shadow: var(--glow, 0 0 22px rgba(227, 167, 47, 0.45));
+  transform: scale(1.045);
+  background: var(--bg-card-on);
+}
+
+.chip {
+  position: absolute;
+  top: -10px;
+  right: 22px;
+  font: 700 10px var(--mono);
+  background: #150b05;
+  color: var(--c);
+  border: 1.5px solid var(--c);
+  border-radius: 10px;
+  padding: 1px 8px;
+  letter-spacing: 0.3px;
+}
+
+.card .av {
+  width: 76px;
+  height: 80px;
+  flex: none;
+}
+
+.card svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.card b {
+  display: block;
+  font: 700 12.5px var(--font-brand);
+  color: var(--c);
+  line-height: 1.15;
+}
+
+.card small {
+  font-size: 11px;
+  color: var(--cream);
+  line-height: 1.2;
+  display: block;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* Animasi Blob */
+.bob {
+  animation: bob-sway 3s ease-in-out infinite;
+  transform-origin: 40px 70px;
+}
+
+@keyframes bob-sway {
+  50% { transform: translateY(-3px) scale(1.02, 0.98); }
+}
+
+.talk .mouth {
+  animation: talk-mouth 0.28s infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes talk-mouth {
+  to { transform: scaleY(1.9); }
+}
+
+.talk .brw {
+  animation: brow-wiggle 0.5s infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes brow-wiggle {
+  to { transform: translateY(-2px); }
+}

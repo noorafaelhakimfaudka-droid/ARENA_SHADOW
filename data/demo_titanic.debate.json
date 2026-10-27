@@ -1,0 +1,920 @@
+{
+  "meta": {
+    "session_id": "demo_titanic",
+    "dataset_name": "titanic.csv",
+    "created_at": "2026-10-14T01:01:41.960824+00:00",
+    "mode": "llm",
+    "problem": {
+      "task": "binary",
+      "target": "Survived",
+      "classes": [
+        "0",
+        "1"
+      ],
+      "metric": "ROC-AUC",
+      "metric_label": "Area under ROC Curve"
+    },
+    "n_rows": 700,
+    "n_cols": 9,
+    "n_train": 560,
+    "n_test": 140
+  },
+  "profile": {
+    "n_numeric": 7,
+    "n_categorical": 2,
+    "missing_pct": 2.1,
+    "class_balance": [
+      {
+        "label": "0",
+        "share": 0.766
+      },
+      {
+        "label": "1",
+        "share": 0.234
+      }
+    ],
+    "top_missing": [
+      {
+        "col": "Age",
+        "pct": 19.3
+      }
+    ],
+    "preview": {
+      "cols": [
+        "PassengerId",
+        "Pclass",
+        "Sex",
+        "Age",
+        "SibSp",
+        "Parch"
+      ],
+      "rows": [
+        [
+          "1",
+          "2",
+          "male",
+          "25.10",
+          "0",
+          "2"
+        ],
+        [
+          "2",
+          "3",
+          "male",
+          "25.10",
+          "0",
+          "0"
+        ],
+        [
+          "3",
+          "3",
+          "male",
+          "25.50",
+          "1",
+          "0"
+        ]
+      ]
+    }
+  },
+  "rounds": [
+    {
+      "id": 1,
+      "agent": "framer",
+      "title": "Analisis Data Titanic",
+      "mood": "calm",
+      "stage": "PROBLEM",
+      "dialog": "Kita hadapi klasifikasi biner pada titanic.csv dengan metrik ROC-AUC. Perhatikan ketimpangan kelas, di mana class_0_pct adalah 77 dan class_1_pct hanya 23 dari total 2 kelas.",
+      "evidence": "PROBLEM: binary | target=Survived | metrik=ROC-AUC",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "0",
+          "1"
+        ],
+        "values": [
+          0.77,
+          0.23
+        ],
+        "max": 1.0,
+        "min": null,
+        "thr": null,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "dataset_name": "titanic.csv",
+        "target": "Survived",
+        "task": "klasifikasi biner",
+        "classes_count": 2,
+        "class_0_pct": 77,
+        "class_1_pct": 23,
+        "metric": "ROC-AUC"
+      },
+      "reveals": null
+    },
+    {
+      "id": 2,
+      "agent": "wrangler",
+      "title": "Analisis Data Mentah",
+      "mood": "calm",
+      "stage": "DATA",
+      "dialog": "Data 700 baris dengan 9 kolom ini cukup menantang. Aku mendeteksi 19.3% data Age yang hilang, ini harus segera dibersihkan sebelum kita melangkah lebih jauh.",
+      "evidence": "700 baris | Age 19.3%",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Age"
+        ],
+        "values": [
+          19.3
+        ],
+        "max": 100.0,
+        "min": null,
+        "thr": 60.0,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "n_rows": 700,
+        "n_cols": 9,
+        "missing_summary": "missing: Age 19.3%"
+      },
+      "reveals": null
+    },
+    {
+      "id": 3,
+      "agent": "wrangler",
+      "title": "Pembersihan Data Intensif",
+      "mood": "calm",
+      "stage": "DATA",
+      "dialog": "Tenang, aku sudah eksekusi drop_duplicates dan membuang kolom rusak. Sekarang, 700 baris data ini siap masuk ke pipeline SimpleImputer untuk mengisi celah yang tersisa!",
+      "evidence": "drop_duplicates | filter missing > 60% | imputasi di pipeline",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Kolom Awal",
+          "Kolom Bersih"
+        ],
+        "values": [
+          9.0,
+          10.0
+        ],
+        "max": 17.0,
+        "min": null,
+        "thr": null,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "n_rows": 700,
+        "n_cols": 9,
+        "clean_action": "drop_duplicates dan kolom missing berat disaring",
+        "imputation": "SimpleImputer di pipeline"
+      },
+      "reveals": null
+    },
+    {
+      "id": 4,
+      "agent": "guardian",
+      "title": "Hentikan Kebocoran Data!",
+      "mood": "angry",
+      "stage": "SPLIT_FE",
+      "dialog": "Berhenti! Jangan imputasi dulu! Kita harus split data 80/20 dengan stratified=True dan seed=42 agar 560 data latih tidak bocor ke 140 data uji!",
+      "evidence": "train_test_split(stratify=y, seed=42) | test=140 dikunci",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Train 80%",
+          "Test 20% 🔒"
+        ],
+        "values": [
+          0.8,
+          0.2
+        ],
+        "max": 1.0,
+        "min": null,
+        "thr": null,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "n_train": 560,
+        "n_test": 140,
+        "split_ratio": "80/20",
+        "stratified": true,
+        "seed": 42
+      },
+      "reveals": null
+    },
+    {
+      "id": 5,
+      "agent": "wrangler",
+      "title": "Eksekusi Engineering Fitur",
+      "mood": "happy",
+      "stage": "SPLIT_FE",
+      "dialog": "Ide bagus, Guardian! Aku sudah tambahkan is_alone dan Pclass_div_Age. Nilai VIF maksimal kita hanya 3.5, jauh di bawah threshold 5.0. Data ini siap untuk diproses!",
+      "evidence": "is_alone, Pclass_div_Age | VIF max=3.5 < 5.0",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Pclass",
+          "Age",
+          "SibSp",
+          "Parch"
+        ],
+        "values": [
+          1.82,
+          1.29,
+          2.42,
+          2.08
+        ],
+        "max": 6.0,
+        "min": null,
+        "thr": 5.0,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "engineered_features": "is_alone, Pclass_div_Age",
+        "vif_max": 3.5,
+        "vif_threshold": 5.0
+      },
+      "reveals": null
+    },
+    {
+      "id": 6,
+      "agent": "guardian",
+      "title": "Deteksi Kebocoran Fatal",
+      "mood": "shock",
+      "stage": "SPLIT_FE",
+      "dialog": "Tunggu dulu! Kalian melewatkan satu kolom PassengerId yang bocor! Meskipun corr adalah 0.0, kita harus segera melakukan dropped_count sebanyak 1 agar data tetap murni!",
+      "evidence": "PassengerId: |r|=0.00 > 0.85 → DIBUANG",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "fitur_1",
+          "fitur_2",
+          "fitur_3",
+          "leak_check"
+        ],
+        "values": [
+          0.25,
+          0.4,
+          0.15,
+          0.0
+        ],
+        "max": 1.0,
+        "min": null,
+        "thr": 0.85,
+        "hl": 3,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "has_leak": true,
+        "dropped_count": 1,
+        "leak_col": "PassengerId",
+        "corr": 0.0
+      },
+      "reveals": null
+    },
+    {
+      "id": 7,
+      "agent": "framer",
+      "title": "Misi Memilih Metrik",
+      "mood": "calm",
+      "stage": "MODEL",
+      "dialog": "Data sudah murni, saatnya fokus! Dengan class_0_pct 77 dan class_1_pct 23, naive_acc 0.77 tidak cukup. Kita wajib gunakan ROC-AUC untuk kemenangan mutlak!",
+      "evidence": "Akurasi naif=0.77 | ROC-AUC objektif",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Akurasi Naif",
+          "Baseline ROC-AUC",
+          "Target Model"
+        ],
+        "values": [
+          0.77,
+          0.5,
+          0.85
+        ],
+        "max": 1.0,
+        "min": null,
+        "thr": null,
+        "hl": 0,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "class_0_pct": 77,
+        "class_1_pct": 23,
+        "metric": "ROC-AUC",
+        "naive_acc": 0.77
+      },
+      "reveals": null
+    },
+    {
+      "id": 8,
+      "agent": "guardian",
+      "title": "Ujian Baseline Model",
+      "mood": "calm",
+      "stage": "MODEL",
+      "dialog": "Data sudah murni, sekarang saatnya bertarung! Logreg memimpin dengan 0.863, mengalahkan dummy_score 0.5. Jangan lengah, pilihlah model dengan performa paling stabil!",
+      "evidence": "CV ROC-AUC: Dummy 0.500 | LogReg 0.863 | RF 0.806 | GB 0.817",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Dummy",
+          "LogReg",
+          "RandomF",
+          "GradBoost"
+        ],
+        "values": [
+          0.5,
+          0.863,
+          0.806,
+          0.817
+        ],
+        "max": 1.0,
+        "min": null,
+        "thr": null,
+        "hl": 3,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "dummy_score": 0.5,
+        "logreg_score": 0.863,
+        "rf_score": 0.806,
+        "gb_score": 0.817
+      },
+      "reveals": {
+        "leaderboard": true,
+        "qa": null
+      }
+    },
+    {
+      "id": 9,
+      "agent": "guardian",
+      "title": "Stabilitas Terjaga",
+      "mood": "happy",
+      "stage": "MODEL",
+      "dialog": "Luar biasa! Gap hanya 0.014, model kita tidak overfit maupun underfit. Pertahanan ini sempurna untuk menaklukkan arena!",
+      "evidence": "gap train-val=0.014 | bukan underfit, bukan overfit",
+      "chart": {
+        "type": "line",
+        "labels": null,
+        "values": null,
+        "max": 1.0,
+        "min": 0.65,
+        "thr": null,
+        "hl": null,
+        "x": [
+          "20%",
+          "40%",
+          "60%",
+          "80%",
+          "100%"
+        ],
+        "s": [
+          [
+            0.903,
+            0.899,
+            0.886,
+            0.872,
+            0.877
+          ],
+          [
+            0.81,
+            0.86,
+            0.86,
+            0.86,
+            0.863
+          ]
+        ],
+        "n": [
+          "Train",
+          "Valid"
+        ],
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "gap": 0.014,
+        "is_overfit": false,
+        "is_underfit": false
+      },
+      "reveals": null
+    },
+    {
+      "id": 10,
+      "agent": "guardian",
+      "title": "Uji Kanari dan Derau",
+      "mood": "happy",
+      "stage": "MODEL",
+      "dialog": "Canary_auc 0.418 membuktikan model aman dari kebocoran! Dengan gb_noise 0.801 dan lr_noise 0.863, pertahanan kita benar-benar tak tertembus di arena ini!",
+      "evidence": "Kanari AUC=0.418 | Derau 15%: GB ke 0.801, LogReg 0.863",
+      "chart": {
+        "type": "line",
+        "labels": null,
+        "values": null,
+        "max": 0.95,
+        "min": 0.65,
+        "thr": null,
+        "hl": null,
+        "x": [
+          "0%",
+          "5%",
+          "10%",
+          "15%"
+        ],
+        "s": [
+          [
+            0.817,
+            0.797,
+            0.777,
+            0.801
+          ],
+          [
+            0.863,
+            0.858,
+            0.855,
+            0.863
+          ]
+        ],
+        "n": [
+          "GradBoost",
+          "Logistic L2"
+        ],
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "canary_auc": 0.418,
+        "gb_noise": 0.801,
+        "lr_noise": 0.863
+      },
+      "reveals": null
+    },
+    {
+      "id": 11,
+      "agent": "guardian",
+      "title": "Evaluasi Signifikansi",
+      "mood": "shock",
+      "stage": "EVAL",
+      "dialog": "Gawat! P-value 0.086 lebih besar dari alpha 0.05, sehingga Logistic Regression L2 tidak signifikan! Pertahanan kita belum mencapai batas yang diharapkan!",
+      "evidence": "Nadeau-Bengio: p=0.086 > α=0.05 → pilih Logistic Regression L2",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "p-value",
+          "Ambang α"
+        ],
+        "values": [
+          0.086,
+          0.05
+        ],
+        "max": 0.13,
+        "min": null,
+        "thr": 0.05,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "p_value": 0.086,
+        "alpha": 0.05,
+        "champion_name": "Logistic Regression L2",
+        "is_significant": false
+      },
+      "reveals": null
+    },
+    {
+      "id": 12,
+      "agent": "guardian",
+      "title": "Evaluasi Akhir: Final",
+      "mood": "happy",
+      "stage": "EVAL",
+      "dialog": "Logistic Regression L2 akhirnya stabil! Dengan test_auc 0.76 dan cv_auc 0.863, pertahanan kita kini jauh lebih kuat dari sebelumnya!",
+      "evidence": "Test ROC-AUC: Logistic Regression L2 0.760 | Evaluasi test tunggal",
+      "chart": {
+        "type": "roc",
+        "labels": null,
+        "values": null,
+        "max": null,
+        "min": null,
+        "thr": null,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": [
+          0.0,
+          0.019,
+          0.047,
+          0.065,
+          0.112,
+          0.168,
+          0.262,
+          0.421,
+          0.458,
+          0.542,
+          0.664,
+          0.991
+        ],
+        "tpr": [
+          0.0,
+          0.242,
+          0.333,
+          0.394,
+          0.455,
+          0.515,
+          0.697,
+          0.758,
+          0.818,
+          0.879,
+          0.939,
+          1.0
+        ],
+        "auc": 0.76,
+        "points": null
+      },
+      "facts": {
+        "champion_name": "Logistic Regression L2",
+        "test_auc": 0.76,
+        "cv_auc": 0.863
+      },
+      "reveals": {
+        "leaderboard": true,
+        "qa": null
+      }
+    },
+    {
+      "id": 13,
+      "agent": "storyteller",
+      "title": "Pola Tersembunyi Terungkap!",
+      "mood": "happy",
+      "stage": "INSIGHT",
+      "dialog": "Luar biasa! Analisis menunjukkan tingkat perempuan mencapai 45 dibanding laki-laki 11. Kelas 1 dengan rate 50 jauh lebih unggul daripada kelas 3 yang hanya 11!",
+      "evidence": "Target rate: female 45% | male 11% | c1 50% | c3 11%",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Perempuan",
+          "Laki-laki",
+          "Kelas 1",
+          "Kelas 3"
+        ],
+        "values": [
+          44.8,
+          10.9,
+          50.3,
+          10.8
+        ],
+        "max": 100.0,
+        "min": null,
+        "thr": null,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "rate_female": 45,
+        "rate_male": 11,
+        "rate_class1": 50,
+        "rate_class3": 11
+      },
+      "reveals": null
+    },
+    {
+      "id": 14,
+      "agent": "storyteller",
+      "title": "Data Storytelling",
+      "mood": "happy",
+      "stage": "INSIGHT",
+      "dialog": "Ceritanya begini: 'perempuan dan anak dulu' bukan sekadar mitos, kelas sosial juga menentukan evakuasi. Fitur Sex dan Pclass paling dominan.",
+      "evidence": "Permutasi: Sex 0.13 · Pclass 0.08 · Fare 0.02 · Parch 0.01",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Sex",
+          "Pclass",
+          "Fare",
+          "Parch",
+          "SibSp"
+        ],
+        "values": [
+          0.129,
+          0.079,
+          0.021,
+          0.01,
+          0.01
+        ],
+        "max": 0.42,
+        "min": null,
+        "thr": null,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "top_feature_1": "Sex",
+        "top_feature_2": "Pclass",
+        "perm_top_scores": [
+          "Sex: 0.13",
+          "Pclass: 0.08",
+          "Fare: 0.02"
+        ]
+      },
+      "reveals": null
+    },
+    {
+      "id": 15,
+      "agent": "storyteller",
+      "title": "Rekomendasi",
+      "mood": "calm",
+      "stage": "INSIGHT",
+      "dialog": "Pesan untuk pemangku kepentingan: model Logistic Regression L2 siap dipakai karena transparan, mudah dijelaskan lewat koefisien, dan stabil terhadap derau.",
+      "evidence": "Rekomendasi: Logistic Regression L2 → transparan & tahan derau",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Kelas 1",
+          "Kelas 2",
+          "Kelas 3"
+        ],
+        "values": [
+          50.3,
+          47.0,
+          10.8
+        ],
+        "max": 100.0,
+        "min": null,
+        "thr": null,
+        "hl": null,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "champion_name": "Logistic Regression L2",
+        "deployment_ready": true
+      },
+      "reveals": null
+    },
+    {
+      "id": 16,
+      "agent": "notebook",
+      "title": "Rakit Notebook",
+      "mood": "happy",
+      "stage": "NOTEBOOK",
+      "dialog": "Semua temuan kita kurakit jadi notebook shadow_arena.ipynb berurutan: EDA, split, pipeline, evaluasi, hingga model final. Sekitar 28 sel siap dijalankan langsung di Jupyter!",
+      "evidence": "shadow_arena.ipynb | ~28 sel | siap dijalankan",
+      "chart": {
+        "type": "bar",
+        "labels": [
+          "Problem",
+          "Data",
+          "Model",
+          "Insight"
+        ],
+        "values": [
+          3.0,
+          9.0,
+          10.0,
+          6.0
+        ],
+        "max": 12.0,
+        "min": null,
+        "thr": null,
+        "hl": 2,
+        "x": null,
+        "s": null,
+        "n": null,
+        "matrix": null,
+        "x_labels": null,
+        "y_labels": null,
+        "fpr": null,
+        "tpr": null,
+        "auc": null,
+        "points": null
+      },
+      "facts": {
+        "notebook_filename": "shadow_arena.ipynb",
+        "cells_count": 28,
+        "is_valid": true
+      },
+      "reveals": null
+    }
+  ],
+  "leaderboard": [
+    {
+      "model": "Dummy",
+      "cv_auc": 0.5,
+      "cv_std": 0.0,
+      "test_auc": 0.5,
+      "champion": false
+    },
+    {
+      "model": "Logistic Regression L2",
+      "cv_auc": 0.863,
+      "cv_std": 0.028,
+      "test_auc": 0.76,
+      "champion": true
+    },
+    {
+      "model": "Random Forest",
+      "cv_auc": 0.806,
+      "cv_std": 0.028,
+      "test_auc": 0.756,
+      "champion": false
+    },
+    {
+      "model": "Gradient Boosting",
+      "cv_auc": 0.817,
+      "cv_std": 0.036,
+      "test_auc": 0.75,
+      "champion": false
+    }
+  ],
+  "qa": [
+    {
+      "key": "problem_framed",
+      "label": "Problem Statement Dirumuskan",
+      "passed": true,
+      "round_id": 1
+    },
+    {
+      "key": "data_cleaned",
+      "label": "Data Dibersihkan",
+      "passed": true,
+      "round_id": 3
+    },
+    {
+      "key": "test_locked",
+      "label": "Data Test Terkunci",
+      "passed": true,
+      "round_id": 4
+    },
+    {
+      "key": "fe_verified",
+      "label": "Rekayasa Fitur & VIF",
+      "passed": true,
+      "round_id": 5
+    },
+    {
+      "key": "leakage_audited",
+      "label": "Audit Kebocoran Selesai",
+      "passed": true,
+      "round_id": 6
+    },
+    {
+      "key": "metric_selected",
+      "label": "Metrik Evaluasi Dipilih",
+      "passed": true,
+      "round_id": 7
+    },
+    {
+      "key": "overfit_checked",
+      "label": "Diagnostik Overfit Selesai",
+      "passed": true,
+      "round_id": 9
+    },
+    {
+      "key": "noise_tested",
+      "label": "Uji Kanari & Derau Lolos",
+      "passed": true,
+      "round_id": 10
+    },
+    {
+      "key": "significance_checked",
+      "label": "Uji Signifikansi Statistik",
+      "passed": true,
+      "round_id": 11
+    },
+    {
+      "key": "notebook_assembled",
+      "label": "Notebook Siap Dijalankan",
+      "passed": true,
+      "round_id": 16
+    }
+  ],
+  "notebook": {
+    "filename": "shadow_arena.ipynb",
+    "valid": true,
+    "cells_count": 28
+  }
+}

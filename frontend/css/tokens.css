@@ -1,0 +1,45 @@
+:root {
+  /* Palet Warna Ink Dark Warm */
+  --bg-0: #0f0804;
+  --bg-1: #1a0e07;
+  --bg-2: #24140b;
+  --bg-3: #2d1a0e;
+  --bg-4: #3a2214;
+  --bg-card: rgba(48, 27, 15, 0.92);
+  --bg-card-on: rgba(66, 38, 20, 0.97);
+
+  /* Aksen Utama */
+  --cream: #FFF4E0;
+  --honey: #E8B04A;
+  --ochre: #E3A72F;
+  --moss: #8DB255;
+  --brick: #B83A2E;
+  --lake: #5B9BB5;
+  --terracotta: #D9703F;
+
+  /* Border & Grids */
+  --border: #5a3a22;
+  --border-dark: #4a2d1b;
+  --border-light: rgba(255, 236, 200, 0.15);
+
+  /* Roster 5 Agen */
+  --c-wrangler: #8DB255;
+  --c-framer: #E3A72F;
+  --c-guardian: #B83A2E;
+  --c-storyteller: #D9703F;
+  --c-notebook: #5B9BB5;
+
+  /* Tipografi Tanpa Dependensi Eksternal */
+  --font-sans: Nunito, Fredoka, "Varela Round", "Trebuchet MS", system-ui, sans-serif;
+  --font-brand: Fredoka, Nunito, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Dimensi Kanvas Logis */
+  --arena-w: 1280px;
+  --arena-h: 666px;
+  --toolbar-h: 56px;
+
+  /* Kecepatan Transisi */
+  --trans-fast: 0.15s ease;
+  --trans-med: 0.3s ease;
+}

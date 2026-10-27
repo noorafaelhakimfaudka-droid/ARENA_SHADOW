@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Environment variables (secrets)
+.env
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# pytest
+.pytest_cache/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Sessions data (generated at runtime)
+sessions/
+
+# Outputs (generated notebooks, logs)
+outputs/
+
+# Static runtime files
+static/live_progress.json
+
+# Temporary Office lock files
+~$*.pptx
+~$*.docx
+~$*.xlsx
+
+# Streamlit cache
+.streamlit/cache/
+
+# Audio files (generated)
+static/audio/
+
+# Large presentation files
+# presentation_shadow_ml.pptx
+# slides.html

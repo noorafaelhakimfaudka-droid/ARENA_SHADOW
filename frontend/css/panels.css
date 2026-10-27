@@ -1,0 +1,280 @@
+/* =============================================================================
+   PANEL DRAWER, MODAL UNGGAH, DAN OVERLAY PROGRES JOB
+   ============================================================================= */
+
+/* 1. DRAWER SESI (SLIDE-IN DARI KIRI) */
+#drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+  z-index: 49;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#drawer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 360px;
+  height: 100vh;
+  background: var(--bg-1);
+  border-right: 2px solid var(--border);
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+#drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  height: var(--toolbar-h);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--border);
+  background: var(--bg-2);
+}
+
+.drawer-title {
+  font: 800 14px var(--font-brand);
+  color: var(--honey);
+  letter-spacing: 0.5px;
+}
+
+.drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-item {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-dark);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: var(--trans-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-item:hover {
+  border-color: var(--honey);
+  background: var(--bg-card-on);
+  transform: translateY(-1px);
+}
+
+.session-item.active {
+  border-color: var(--moss);
+  box-shadow: 0 0 12px rgba(141, 178, 85, 0.3);
+}
+
+.session-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.session-name {
+  font: 700 13px var(--mono);
+  color: var(--cream);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-champ {
+  font: 700 10px var(--font-brand);
+  color: var(--moss);
+  background: rgba(141, 178, 85, 0.15);
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--moss);
+}
+
+.session-meta {
+  font: 600 11px var(--mono);
+  color: #c9b08a;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.btn-del-session {
+  background: transparent;
+  color: #c98a8a;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.btn-del-session:hover {
+  background: rgba(184, 58, 46, 0.2);
+  color: #ff9a8a;
+}
+
+/* 2. MODAL UNGGAH CSV */
+#upload-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#upload-modal.open {
+  display: flex;
+}
+
+.modal-box {
+  width: 480px;
+  background: var(--bg-1);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  animation: modal-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  padding: 28px 16px;
+  text-align: center;
+  background: rgba(21, 11, 5, 0.6);
+  cursor: pointer;
+  transition: var(--trans-fast);
+}
+
+.drop-zone.dragover {
+  border-color: var(--honey);
+  background: rgba(232, 176, 74, 0.08);
+}
+
+.drop-zone i {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+  color: var(--honey);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font: 700 12px var(--font-brand);
+  color: var(--honey);
+}
+
+.form-input {
+  background: var(--bg-0);
+  border: 1.5px solid var(--border-dark);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: var(--cream);
+  font: 600 12px var(--mono);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--honey);
+}
+
+/* 3. OVERLAY PROGRES SSE */
+#progress-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 8, 4, 0.94);
+  backdrop-filter: blur(6px);
+  z-index: 70;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#progress-overlay.open {
+  display: flex;
+}
+
+.prog-agents {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.mini-agent {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--border-dark);
+  background: var(--bg-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--trans-med);
+  opacity: 0.4;
+}
+
+.mini-agent.active {
+  opacity: 1;
+  border-color: var(--c);
+  box-shadow: 0 0 16px var(--c);
+  transform: scale(1.15);
+}
+
+.prog-bar-wrap {
+  width: 420px;
+  height: 12px;
+  background: var(--bg-0);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.prog-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--honey), var(--moss));
+  border-radius: 8px;
+  transition: width 0.3s ease;
+}
+
+.prog-msg {
+  font: 700 13.5px var(--font-brand);
+  color: var(--cream);
+  text-align: center;
+  max-width: 460px;
+}

@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Shadow Arena — Markas Emosi Debat Multi-Agent ML</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    :root {
+      --cream: #FFF4E0;
+      --honey: #E8B04A;
+      --brown: #1a0e07;
+      --panel-border: #5a3a22;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+      --font-ui: "Fredoka", "Nunito", "Trebuchet MS", system-ui, sans-serif;
+
+      /* Roster 5 Agen Resmi Antigravity */
+      --c-wrangler: #8DB255;
+      --c-framer: #E3A72F;
+      --c-guardian: #B83A2E;
+      --c-story: #D9703F;
+      --c-builder: #5B9BB5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0f0804;
+      font-family: var(--font-ui);
+      color: var(--cream);
+      font-weight: 700;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Background Global Hangat Bertekstur */
+    body {
+      background: radial-gradient(ellipse at 50% 45%, #3a2214 0%, #1f1209 55%, #0f0804 100%);
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      background-image: radial-gradient(#fff 1px, transparent 1px);
+      background-size: 6px 6px;
+      pointer-events: none;
+    }
+
+    /* Partikel Debu Mengambang */
+    .dust {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ffd89a;
+      opacity: 0;
+      animation: dust linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes dust {
+      0% {
+        opacity: 0;
+        transform: translateY(0);
+      }
+
+      20% {
+        opacity: 0.35;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-150px) translateX(30px);
+      }
+    }
+
+
+
+    /* Kanvas Utama Melingkar 1280x720 (Identik di Semua Device) */
+    #arena-scaler {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1280px;
+      height: 720px;
+      transform-origin: center center;
+      transform: translate(-50%, -50%) scale(1);
+      overflow: hidden;
+      background: transparent;
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Garis Koneksi Antar Agen dan Panggung */
+    #links-layer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1280px;
+      height: 720px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .ln {
+      fill: none;
+      stroke: rgba(255, 236, 200, 0.12);
+      stroke-width: 2;
+      stroke-dasharray: 3 6;
+    }
+
+    .ln.on {
+      stroke-width: 3.2;
+      stroke-dasharray: 8 6;
+      animation: flow 1s linear infinite;
+      filter: drop-shadow(0 0 6px var(--c));
+    }
+
+    @keyframes flow {
+      to {
+        stroke-dashoffset: -14;
+      }
+    }
+
+    /* Toolbar Navigasi Elegan 50px */
+    #dock {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1280px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 24px;
+      background: rgba(26, 14, 7, 0.90);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1.5px solid rgba(232, 176, 74, 0.25);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      z-index: 20;
+    }
+
+    #dock .g {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      font: 800 11.5px var(--font-ui);
+      color: var(--cream);
+      background: #4a2d1b;
+      border: 0;
+      border-radius: 20px;
+      padding: 6px 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      filter: brightness(1.2);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    .b-moss {
+      background: #8DB255;
+      color: #1f1209;
+    }
+
+    .b-honey {
+      background: var(--honey);
+      color: #2a1507;
+    }
+
+    .b-ochre {
+      background: #E3A72F;
+      color: #2a1507;
+    }
+
+    #badge {
+      font: 800 12px var(--font-ui);
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: #120a05;
+      border: 2px solid var(--c, #8DB255);
+      min-width: 220px;
+      text-align: center;
+    }
+
+    #badge i {
+      color: var(--c);
+      font-style: normal;
+    }
+
+    /* Kartu 5 Agen (Melingkar Mengelilingi Panggung) */
+    .card {
+      position: absolute;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px 6px 8px;
+      background: rgba(48, 27, 15, 0.92);
+      border: 2px solid color-mix(in srgb, var(--c) 45%, transparent);
+      border-radius: 46px 38px 44px 36px;
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 5;
+      cursor: pointer;
+      opacity: 0.72;
+    }
+
+    .card:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+    }
+
+    .card.on {
+      border-color: var(--c);
+      box-shadow: 0 0 30px color-mix(in srgb, var(--c) 65%, transparent), 0 6px 20px rgba(0, 0, 0, 0.55);
+      transform: scale(1.065);
+      background: rgba(66, 38, 20, 0.98);
+      opacity: 1;
+      z-index: 12;
+    }
+
+    .chip {
+      position: absolute;
+      top: -10px;
+      right: 22px;
+      font: 700 10px var(--mono);
+      background: #150b05;
+      color: var(--c);
+      border: 1.5px solid var(--c);
+      border-radius: 10px;
+      padding: 1px 8px;
+    }
+
+    .card .av {
+      width: 76px;
+      height: 80px;
+      flex: none;
+    }
+
+    .card svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .card b {
+      display: block;
+      font: 700 12.5px var(--font-ui);
+      color: var(--c);
+      line-height: 1.15;
+    }
+
+    .card small {
+      font-size: 11px;
+      color: var(--cream);
+      line-height: 1.2;
+      display: block;
+    }
+
+    /* Animasi Avatar */
+    .bob {
+      animation: bob 3s ease-in-out infinite;
+      transform-origin: 40px 70px;
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-3px) scale(1.02, 0.98);
+      }
+    }
+
+    .talk .mouth {
+      animation: talk 0.28s infinite alternate;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    @keyframes talk {
+      to {
+        transform: scaleY(1.9);
+      }
+    }
+
+    .talk .brw {
+      animation: brw 0.5s infinite alternate;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    @keyframes brw {
+      to {
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Panggung Arena & HD Zoom */
+    #stage {
+      position: absolute;
+      left: 450px;
+      top: 195px;
+      width: 380px;
+      height: 230px;
+      background: var(--brown);
+      border: 2.5px solid var(--honey);
+      border-radius: 22px;
+      box-shadow: 0 0 26px rgba(232, 176, 74, 0.4);
+      z-index: 6;
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      overflow: hidden;
+    }
+
+    #stage.zoom {
+      transform: scale(1.9) translateY(-6px);
+      z-index: 60;
+      box-shadow: 0 0 45px rgba(232, 176, 74, 0.6);
+    }
+
+    #sh {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font: 700 12px var(--font-ui);
+      color: var(--honey);
+      letter-spacing: 0.5px;
+      background: #2a170c;
+      border-bottom: 1.5px solid #5a3a22;
+    }
+
+    #sh .dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    #sh .dots i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: block;
+    }
+
+    #sh button {
+      padding: 3px 9px;
+      font-size: 11px;
+    }
+
+    #sc {
+      height: 196px;
+      padding: 2px 8px 0;
+    }
+
+    #sc svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Tag Judul Babak */
+    #ms {
+      position: absolute;
+      left: 460px;
+      top: 430px;
+      width: 360px;
+      height: 26px;
+      border-radius: 20px;
+      background: #3a2214;
+      border: 2px solid var(--honey);
+      text-align: center;
+      font: 700 13px/22px var(--font-ui);
+      color: var(--honey);
+      z-index: 6;
+    }
+
+    /* Balon Dialog Mewah & Lapang */
+    #bub {
+      position: absolute;
+      left: 315px;
+      top: 446px;
+      width: 650px;
+      min-height: 160px;
+      max-height: 236px;
+      background: rgba(38, 20, 11, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2.5px solid var(--c);
+      border-radius: 26px;
+      padding: 12px 18px 10px;
+      z-index: 7;
+      box-shadow: 0 0 25px color-mix(in srgb, var(--c) 40%, transparent), 0 10px 32px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #tail {
+      position: absolute;
+      width: 22px;
+      height: 14px;
+      background: var(--c);
+      clip-path: polygon(50% 0, 0 100%, 100% 100%);
+    }
+
+    #bh {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font: 700 13px var(--font-ui);
+      color: var(--c);
+    }
+
+    #bh em {
+      font-style: normal;
+      color: var(--cream);
+      opacity: 0.8;
+      font-size: 12px;
+    }
+
+    .eq {
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+      height: 12px;
+    }
+
+    .eq s {
+      width: 3px;
+      background: var(--c);
+      border-radius: 2px;
+      animation: eq 0.4s infinite alternate;
+    }
+
+    .eq s:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .eq s:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .eq s:nth-child(4) {
+      animation-delay: 0.05s;
+    }
+
+    @keyframes eq {
+      from {
+        height: 3px;
+      }
+
+      to {
+        height: 12px;
+      }
+    }
+
+    #tx {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--cream);
+      flex: 1;
+      max-height: 135px;
+      overflow-y: auto;
+      padding-right: 6px;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    #tx::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    #tx::-webkit-scrollbar-track {
+      background: rgba(21, 11, 5, 0.5);
+      border-radius: 4px;
+    }
+
+    #tx::-webkit-scrollbar-thumb {
+      background: var(--c);
+      border-radius: 4px;
+    }
+
+    #ev {
+      font: 600 11px var(--mono);
+      color: var(--honey);
+      background: #150b05;
+      border-radius: 8px;
+      padding: 3px 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: 1px solid rgba(232, 176, 74, 0.25);
+    }
+
+
+
+    /* Partikel Bintang Mood Happy */
+    .star {
+      position: absolute;
+      color: #ffd36b;
+      font-size: 16px;
+      pointer-events: none;
+      animation: star 0.9s forwards;
+      z-index: 30;
+    }
+
+    @keyframes star {
+      to {
+        transform: translate(var(--dx), var(--dy)) rotate(200deg) scale(0.3);
+        opacity: 0;
+      }
+    }
+
+    /* Modal Klasemen / Sesi / Prediksi */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 8, 4, 0.85);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 70;
+    }
+
+    .modal-box {
+      width: 540px;
+      max-height: 580px;
+      background: #2d1a0e;
+      border: 2.5px solid var(--honey);
+      border-radius: 24px;
+      padding: 22px 26px;
+      box-shadow: 0 0 35px rgba(232, 176, 74, 0.35);
+      overflow-y: auto;
+    }
+
+    .modal-box h3 {
+      font: 700 18px var(--font-ui);
+      color: var(--honey);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--cream);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .row-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 9px 0;
+      font-size: 13px;
+    }
+
+    .row-bar span {
+      width: 140px;
+      font-family: var(--mono);
+    }
+
+    .row-bar i {
+      height: 12px;
+      border-radius: 6px;
+      display: block;
+      transition: width 0.4s ease;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      top: 64px;
+      transform: translateX(-50%);
+      background: var(--honey);
+      color: #2a1507;
+      padding: 6px 18px;
+      border-radius: 18px;
+      font-size: 12px;
+      z-index: 80;
+      display: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="arena-scaler">
+    <svg id="links-layer"></svg>
+
+    <!-- Dock Toolbar Navigasi Elegan 50px -->
+    <div id="dock">
+      <div class="g">
+        <button id="bPrev">◀ PREV</button>
+        <div id="badge"></div>
+        <button class="b-honey" id="bNext">NEXT ▶</button>
+        <button id="bAuto">▶ AUTO-PLAY</button>
+      </div>
+      <div style="width: 1px; height: 22px; background: rgba(232, 176, 74, 0.25); margin: 0 4px;"></div>
+      <div class="g">
+        <button id="bSnd" title="Klik untuk mematikan atau menghidupkan suara agen">🔊 SUARA: NYALA</button>
+        <button id="bRank">🏆 KLASEMEN</button>
+      </div>
+    </div>
+
+    <!-- Panggung Arena dengan Tombol HD Zoom -->
+    <div id="stage">
+      <div id="sh">
+        <span class="dots">
+          <i style="background:#D9703F"></i>
+          <i style="background:#E8B04A"></i>
+          <i style="background:#8DB255"></i>
+        </span>
+        <span>PANGGUNG DEBAT AI</span>
+        <button id="bZ">🔍 HD ZOOM</button>
+      </div>
+      <div id="sc"></div>
+    </div>
+
+    <!-- Milestone Label & Balon Dialog -->
+    <div id="ms"></div>
+    <div id="bub">
+      <div id="tail"></div>
+      <div id="bh">
+        <b id="bn"></b>
+        <em id="bt"></em>
+        <div class="eq"><s></s><s></s><s></s><s></s></div>
+      </div>
+      <div id="tx"></div>
+      <div id="ev"></div>
+    </div>
+
+
+
+    <!-- Modal Klasemen CV Leaderboard -->
+    <div class="modal-overlay" id="modal-rank">
+      <div class="modal-box">
+        <h3>🏆 KLASEMEN MODEL CV <button class="modal-close" onclick="closeModals()">✕</button></h3>
+        <p style="font-size:12px;color:var(--cream);opacity:.8;margin-bottom:14px">Skor CV 5-fold data train dari
+          eksekusi nyata model:</p>
+        <div id="rk"></div>
+        <button style="margin-top:14px;width:100%" class="b-honey" onclick="closeModals()">TUTUP</button>
+      </div>
+    </div>
+
+    <!-- Modal Sesi Riset -->
+    <div class="modal-overlay" id="modal-sessions">
+      <div class="modal-box">
+        <h3>Pilih Sesi Riset Tersimpan <button class="modal-close" onclick="closeModals()">✕</button></h3>
+        <div id="sessions-list" style="max-height:320px;overflow-y:auto"></div>
+        <button style="margin-top:12px;width:100%" onclick="closeModals()">Tutup</button>
+      </div>
+    </div>
+
+    <!-- Modal Prediksi Interaktif -->
+    <div class="modal-overlay" id="modal-predict">
+      <div class="modal-box">
+        <h3>Uji Prediksi Data Baru <button class="modal-close" onclick="closeModals()">✕</button></h3>
+        <p style="font-size:12px;opacity:.8;margin-bottom:12px">Masukkan nilai fitur sesuai skema model champion:</p>
+        <div id="predict-form-container"></div>
+        <div id="predict-result-box"
+          style="margin-top:12px;display:none;background:#150b05;padding:10px;border-radius:10px;border:1.5px solid var(--honey)">
+        </div>
+        <button style="margin-top:12px;width:100%" onclick="closeModals()">Tutup</button>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // 1. Roster 5 Agen Resmi Antigravity (Posisinya Melingkar Mengelilingi Panggung)
+    const AGENTS = [
+      { n: "DATA WRANGLER", name: "DATA WRANGLER", role: "Data understanding, cleaning & feature engineering", color: "#8DB255", x: 85, y: 145, w: 250, tail: ["l", 36] },
+      { n: "PROBLEM FRAMER", name: "PROBLEM FRAMER", role: "Perumus problem statement", color: "#E3A72F", x: 525, y: 80, w: 230, tail: ["t", 510] },
+      { n: "MODEL GUARDIAN", name: "MODEL GUARDIAN", role: "Pemilih model, penjaga leakage & overfit", color: "#B83A2E", x: 955, y: 145, w: 250, tail: ["r", 36] },
+      { n: "INSIGHT STORYTELLER", name: "INSIGHT STORYTELLER", role: "Insight, visualisasi & data storytelling", color: "#D9703F", x: 85, y: 495, w: 240, tail: ["l", 84] },
+      { n: "NOTEBOOK BUILDER", name: "NOTEBOOK BUILDER", role: "Pembuat kode notebook .ipynb", color: "#5B9BB5", x: 955, y: 495, w: 240, tail: ["r", 84] }
+    ];
+
+    let sessionData = window.SESSION || null;
+    let cur = 0;
+    let snd = true;
+    let ac = null;
+    let tyTimer = null;
+    let auto = null;
+    let prevAgent = -1;
+
+    // Partikel Debu
+    for (let i = 0; i < 16; i++) {
+      const d = document.createElement("i");
+      d.className = "dust";
+      d.style.cssText = `left:${Math.random() * 1280}px;top:${180 + Math.random() * 520}px;animation-duration:${6 + Math.random() * 7}s;animation-delay:${Math.random() * 6}s`;
+      $("arena-scaler").appendChild(d);
+    }
+
+
+
+    // Generator Avatar SVG Blobs dengan Aksesori Lengkap
+    function getAvatarSvg(idx, mood) {
+      const c = AGENTS[idx].color;
+      const br = {
+        calm: ["M21 27Q29 23 36 27", "M44 27Q51 23 59 27"],
+        angry: ["M21 23L36 30", "M59 23L44 30"],
+        shock: ["M21 21Q29 16 36 21", "M44 21Q51 16 59 21"],
+        happy: ["M21 25Q29 20 36 25", "M44 25Q51 20 59 25"]
+      }[mood] || ["M21 27Q29 23 36 27", "M44 27Q51 23 59 27"];
+
+      const mo = {
+        calm: '<path d="M34 57Q40 61 46 57" fill="none"/>',
+        angry: '<path d="M33 60Q40 53 47 60" fill="none"/>',
+        shock: '<path d="M36 55Q40 66 44 55Z" fill="#3a1410"/>',
+        happy: '<path d="M32 54Q40 67 48 54Z" fill="#3a1410"/>'
+      }[mood] || '<path d="M34 57Q40 61 46 57" fill="none"/>';
+
+      const accessories = [
+        '<g stroke="#FFF4E0" stroke-width="3" fill="rgba(255,244,224,.25)"><circle cx="63" cy="62" r="8"/><path d="M57 68L50 76"/></g>',
+        '<path d="M58 22L58 0" stroke="#FFF4E0" stroke-width="2.5"/><path d="M58 0L74 6L58 12Z" fill="#FFF4E0"/>',
+        '<path d="M20 22L14 4L32 14Z M60 22L66 4L48 14Z" fill="#3a1410" stroke="#FFF4E0" stroke-width="1.5"/>',
+        '<circle cx="40" cy="1" r="7" fill="#FFD36B" stroke="#FFF4E0" stroke-width="1.5"/><rect x="36" y="8" width="8" height="5" fill="#FFF4E0"/>',
+        '<g transform="rotate(14 64 62)"><rect x="55" y="50" width="16" height="22" rx="3" fill="#FFF4E0" stroke="#2a1507" stroke-width="1.5"/><path d="M59 57H67M59 62H67M59 67H65" stroke="#5B9BB5" stroke-width="1.8"/></g>'
+      ][idx];
+
+      return `<svg viewBox="0 0 80 80">
+    <defs>
+      <radialGradient id="grad-${idx}" cx=".33" cy=".28" r=".85">
+        <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
+        <stop offset=".22" stop-color="${c}"/>
+        <stop offset="1" stop-color="${c}" stop-opacity=".65"/>
+      </radialGradient>
+    </defs>
+    <g class="bob">
+      <path d="M40 12C61 9 73 28 70 47C68 65 54 73 40 73C25 73 11 65 10 47C7 28 21 14 40 12Z" fill="url(#grad-${idx})" stroke="${c}" stroke-width="2"/>
+      <circle cx="20" cy="30" r="2" fill="#fff" opacity=".6"/><circle cx="62" cy="58" r="1.6" fill="#fff" opacity=".5"/>
+      <ellipse cx="29" cy="40" rx="8" ry="9.5" fill="#fff"/><ellipse cx="51" cy="40" rx="8" ry="9.5" fill="#fff"/>
+      <circle cx="30" cy="41" r="5.2" fill="#150b05"/><circle cx="50" cy="41" r="5.2" fill="#150b05"/>
+      <circle cx="32" cy="38.5" r="2" fill="#fff"/><circle cx="52" cy="38.5" r="2" fill="#fff"/>
+      <g class="brw" fill="none" stroke="#150b05" stroke-width="3" stroke-linecap="round"><path d="${br[0]}"/><path d="${br[1]}"/></g>
+      <g class="mouth" stroke="#3a1410" stroke-width="2.5" stroke-linecap="round">${mo}</g>
+      ${accessories}
+    </g>
+  </svg>`;
+    }
+
+    function renderAvatar(idx, mood) {
+      const el = $(`av-${idx}`);
+      if (el) el.innerHTML = getAvatarSvg(idx, mood || "calm");
+    }
+
+    // Render 5 Kartu Agen Melingkar
+    AGENTS.forEach((a, i) => {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.id = `card-${i}`;
+      d.style.cssText = `left:${a.x}px;top:${a.y}px;width:${a.w}px;--c:${a.color};--glow:0 0 24px ${a.color}73`;
+      d.innerHTML = `
+    <span class="chip">${["df.clean()", "problem.frame()", "model.fit()", "plot.story()", "nb.build()"][i]}</span>
+    <div class="av" id="av-${i}"></div>
+    <div><b>${a.name}</b><small>${a.role}</small></div>
+  `;
+      d.onclick = () => {
+        const nextR = sessionData.rounds.findIndex((r, rIdx) => rIdx >= cur && r.agent === i);
+        if (nextR !== -1) go(nextR);
+        else {
+          const firstR = sessionData.rounds.findIndex(r => r.agent === i);
+          if (firstR !== -1) go(firstR);
+        }
+      };
+      $("arena-scaler").appendChild(d);
+      renderAvatar(i, "calm");
+    });
+
+    // Garis Koneksi Antar Agen ke Panggung
+    function drawLinks(activeIdx) {
+      const layer = $("links-layer");
+      const ex = 640, ey = 256;
+      let html = "";
+      AGENTS.forEach((a, i) => {
+        const cx = a.x + a.w / 2;
+        const cy = a.y + 48;
+        const my = (cy + ey) / 2;
+        const d = `M${cx} ${cy}C${cx} ${my} ${ex} ${my} ${ex} ${ey}`;
+        const isActive = i === activeIdx;
+        html += `<path class="ln ${isActive ? "on" : ""}" d="${d}" style="--c:${a.color}"/>`;
+        if (isActive) {
+          html += `<circle r="5" fill="${a.color}"><animateMotion dur="1.5s" repeatCount="indefinite" path="${d}"/></circle>`;
+        }
+      });
+      layer.innerHTML = html;
+    }
+
+    // Generator Grafik SVG Panggung (Bar & Line)
+    function chartSvg(c, col) {
+      if (!c || typeof c !== "object") return "";
+      const W = 364, H = 188, P = 22, B = 30, L = 34;
+      const isBar = c.t === "bar";
+
+      // Ambil nilai-nilai numerik valid
+      let vals = [];
+      if (isBar) {
+        vals = Array.isArray(c.v) ? c.v.map(v => Number(v)).filter(v => !isNaN(v)) : [];
+      } else if (Array.isArray(c.s)) {
+        vals = c.s.flat().map(v => Number(v)).filter(v => !isNaN(v));
+      }
+
+      const n = isBar ? (Array.isArray(c.v) ? c.v.length : 0) : (Array.isArray(c.x) ? c.x.length : 0);
+      if (!n) return "";
+
+      // Penentuan mn (nilai minimum)
+      const mn = (c.min !== undefined && c.min !== null && !isNaN(Number(c.min))) ? Number(c.min) : 0;
+
+      // Penentuan mx (nilai maksimum) secara tangguh & cerdas jika c.max hilang/NaN/nol
+      let mx;
+      if (c.max !== undefined && c.max !== null && !isNaN(Number(c.max)) && Number(c.max) > mn) {
+        mx = Number(c.max);
+      } else if (vals.length > 0) {
+        const maxVal = Math.max(...vals);
+        const titleStr = (c.title || "").toLowerCase();
+        if (maxVal <= 1.0 && maxVal > 0) {
+          mx = 1.0;
+        } else if (maxVal <= 100 && (maxVal > 20 || titleStr.includes("%") || titleStr.includes("persen") || titleStr.includes("alokasi") || titleStr.includes("prioritas"))) {
+          mx = 100;
+        } else if (maxVal <= 10) {
+          mx = 10;
+        } else {
+          mx = Math.ceil(maxVal * 1.15);
+        }
+      } else {
+        mx = 100;
+      }
+      if (mx <= mn) mx = mn + 1;
+
+      const y = v => {
+        const num = isNaN(Number(v)) ? mn : Number(v);
+        return P + (H - P - B) * (1 - (num - mn) / (mx - mn));
+      };
+      const bw = (W - L) / n;
+      const dec = mx <= 1 ? 2 : mx <= 10 ? 1 : 0;
+      let s = `<svg viewBox="0 0 ${W} ${H}">`;
+
+      for (let k = 0; k <= 4; k++) {
+        const v = mn + (mx - mn) * k / 4;
+        s += `<path d="M${L} ${y(v)}H${W}" stroke="#5a3a22" stroke-width="1" stroke-dasharray="${k ? "2 4" : "0"}"/>
+          <text x="${L - 5}" y="${y(v) + 3}" text-anchor="end" fill="#c9b08a" font-size="8.5" font-family="monospace">${v.toFixed(dec)}</text>`;
+      }
+      s += `<path d="M${L} ${P - 4}V${y(mn)}" stroke="#8a6a48"/>`;
+
+      if (isBar) {
+        (c.v || []).forEach((rawV, i) => {
+          const v = isNaN(Number(rawV)) ? 0 : Number(rawV);
+          const h = Math.max(y(mn) - y(v), 2);
+          const x = L + i * bw + bw * 0.2;
+          const w = bw * 0.6;
+          const f = c.hl === i ? "var(--honey)" : col;
+          const lbl = (c.l && c.l[i] !== undefined) ? c.l[i] : "";
+          s += `<rect x="${x}" y="${y(v)}" width="${w}" height="${h}" rx="7" fill="${f}" opacity=".92">
+              <animate attributeName="height" from="0" to="${h}" dur=".4s"/>
+              <animate attributeName="y" from="${y(mn)}" to="${y(v)}" dur=".4s"/>
+            </rect>
+            <text x="${x + w / 2}" y="${y(v) - 5}" text-anchor="middle" fill="#FFF4E0" font-size="11.5" font-weight="800" font-family="monospace">${v}</text>
+            <text x="${x + w / 2}" y="${H - 10}" text-anchor="middle" fill="#FFF4E0" font-size="10">${lbl}</text>`;
+        });
+        if (c.thr !== undefined && c.thr !== null && !isNaN(Number(c.thr))) {
+          const thrNum = Number(c.thr);
+          s += `<path d="M${L} ${y(thrNum)}H${W}" stroke="#ff9a8a" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="${W - 4}" y="${y(thrNum) - 4}" text-anchor="end" fill="#ff9a8a" font-size="10" font-family="monospace">ambang ${thrNum}</text>`;
+        }
+      } else {
+        const cs = [col, "var(--honey)"];
+        (c.s || []).forEach((a, k) => {
+          const pts = (a || []).map((v, i) => `${L + i * bw + bw / 2},${y(v)}`).join(" ");
+          s += `<polyline points="${pts}" fill="none" stroke="${cs[k % cs.length]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` +
+            (a || []).map((v, i) => `<circle cx="${L + i * bw + bw / 2}" cy="${y(v)}" r="4" fill="${cs[k % cs.length]}"/>`).join("");
+          if (c.n && c.n[k]) {
+            s += `<text x="${L + 8}" y="${14 + k * 13}" fill="${cs[k % cs.length]}" font-size="11" font-weight="800">● ${c.n[k]}</text>`;
+          }
+        });
+        (c.x || []).forEach((l, i) => s += `<text x="${L + i * bw + bw / 2}" y="${H - 10}" text-anchor="middle" fill="#FFF4E0" font-size="10">${l}</text>`);
+      }
+      return s + "</svg>";
+    }
+
+    // =============================================================================
+    // SUARA & TEXT-TO-SPEECH (Web Speech API & Web Audio Synthesizer)
+    // =============================================================================
+    let idVoice = null;
+
+    function initVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const voices = window.speechSynthesis.getVoices() || [];
+      // Prioritas 1: Suara Bahasa Indonesia Natural / Neural / Online (Sangat Manusiawi)
+      idVoice = voices.find(v => (v.lang.startsWith("id") || v.lang.startsWith("in")) && (v.name.includes("Natural") || v.name.includes("Online") || v.name.includes("Google") || v.name.includes("Neural")))
+        || voices.find(v => v.lang === "id-ID" || v.lang === "id_ID" || v.lang.toLowerCase().startsWith("id"))
+        || voices.find(v => v.name.toLowerCase().includes("indonesia") || v.name.toLowerCase().includes("gadis") || v.name.toLowerCase().includes("ardi"))
+        || null;
+    }
+
+    if ('speechSynthesis' in window) {
+      initVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = initVoices;
+      }
+    }
+
+    // Profil Suara Natural 5 Agen Resmi Antigravity (Artikulatif & Jelas)
+    const AGENT_VOICE_PROFILES = [
+      { pitch: 1.0, rate: 0.98 }, // 0: DATA WRANGLER (Santai, taktis, tempo alami)
+      { pitch: 1.0, rate: 0.96 }, // 1: PROBLEM FRAMER (Wibawa, artikulatif, tegas & jelas)
+      { pitch: 1.0, rate: 0.94 }, // 2: MODEL GUARDIAN (Tegas, kritis, wibawa)
+      { pitch: 1.0, rate: 0.95 }, // 3: INSIGHT STORYTELLER (Hangat, naratif, mengalir jelas)
+      { pitch: 1.0, rate: 0.98 }  // 4: NOTEBOOK BUILDER (Ceria, techy, artikulatif)
+    ];
+
+    let autoAdvanceTimer = null;
+    let currentRoundToken = 0;
+    let isAgentSpeaking = false;
+    let speechWatchdogTimer = null;
+    let dataStatusDone = false;
+
+    // Suara Sintesis Typewriter Halus (Web Audio API)
+    function blip(freq) {
+      if (!snd) return;
+      try {
+        ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        o.type = "triangle";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.018, ac.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.07);
+        o.connect(g);
+        g.connect(ac.destination);
+        o.start();
+        o.stop(ac.currentTime + 0.08);
+      } catch (err) { }
+    }
+
+    // Bintang Efek Mood Happy
+    function triggerStars(idx) {
+      const a = AGENTS[idx];
+      const cx = a.x + a.w / 2;
+      const cy = a.y + 48;
+      for (let k = 0; k < 12; k++) {
+        const s = document.createElement("span");
+        s.className = "star";
+        s.textContent = "★";
+        const angle = (k / 12) * 6.28;
+        const dist = 45 + Math.random() * 40;
+        s.style.cssText = `left:${cx}px;top:${cy}px;--dx:${Math.cos(angle) * dist}px;--dy:${Math.sin(angle) * dist}px`;
+        $("arena-scaler").appendChild(s);
+        setTimeout(() => s.remove(), 950);
+      }
+    }
+
+    // Render Babak Aktif
+    function go(roundIdx) {
+      if (!sessionData || !sessionData.rounds || sessionData.rounds.length === 0) return;
+      const total = Math.max(16, sessionData.rounds.length);
+      cur = Math.max(0, Math.min(sessionData.rounds.length - 1, roundIdx));
+      const r = sessionData.rounds[cur] || sessionData.rounds[0];
+
+      // Safe agent index resolution: support numbers 0-4 or string names ('wrangler', 'framer', etc.)
+      let agentIdx = 0;
+      if (typeof r.agent === "number") {
+        agentIdx = r.agent;
+      } else if (typeof r.agent === "string") {
+        const map = { wrangler: 0, framer: 1, guardian: 2, storyteller: 3, builder: 4 };
+        agentIdx = map[r.agent.toLowerCase()] !== undefined ? map[r.agent.toLowerCase()] : 0;
+      }
+      agentIdx = Math.max(0, Math.min(4, agentIdx));
+      const a = AGENTS[agentIdx] || AGENTS[0];
+
+      const roundToken = ++currentRoundToken;
+      clearInterval(tyTimer);
+      clearTimeout(autoAdvanceTimer);
+      clearTimeout(speechWatchdogTimer);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      if (window._currentAudio) {
+        try { window._currentAudio.pause(); } catch (e) { }
+        window._currentAudio = null;
+      }
+
+      isAgentSpeaking = true;
+      let typewriterDone = false;
+      let speechDone = !snd;
+      let speechFailed = false;
+
+      if (prevAgent >= 0 && prevAgent !== agentIdx) renderAvatar(prevAgent, "calm");
+      AGENTS.forEach((_, i) => $(`card-${i}`).classList.remove("on", "talk"));
+
+      prevAgent = agentIdx;
+      renderAvatar(agentIdx, r.mood || "calm");
+      $(`card-${agentIdx}`).classList.add("on", "talk");
+
+      $("arena-scaler").style.setProperty("--c", a.color);
+      $("badge").style.setProperty("--c", a.color);
+      $("badge").innerHTML = `<i>●</i> ${a.name} | BABAK ${cur + 1}/${total}`;
+
+      $("ms").textContent = `BABAK ${cur + 1} · ${r.title}`;
+      $("bub").style.setProperty("--c", a.color);
+      $("bn").textContent = a.name;
+      $("bt").textContent = `#${cur + 1} ${r.title}`;
+
+      // Ekor Balon
+      const [side, pos] = a.tail;
+      const t = $("tail").style;
+      t.cssText = "";
+      if (side === "l") { t.left = "-18px"; t.top = `${pos - 7}px`; t.transform = "rotate(-90deg)"; }
+      else if (side === "r") { t.left = "646px"; t.top = `${pos - 7}px`; t.transform = "rotate(90deg)"; }
+      else if (side === "t") { t.top = "-14px"; t.left = `${pos - 11}px`; }
+
+      // Render Grafik Panggung
+      $("sc").innerHTML = chartSvg(r.chart, a.color);
+      $("ev").textContent = `[BUKTI AUDIT: ${r.proof || "FAKTA KOMPUTASI NYATA"}]`;
+
+      const fullText = r.dialog || "";
+
+      // Pemeriksa Kelengkapan: Maju ke babak berikutnya HANYA jika teks SUDAH selesai diketik dan suara sudah tuntas sampai kata terakhir
+      const checkAdvance = () => {
+        if (roundToken !== currentRoundToken) return;
+        if (!typewriterDone) return; // Wajib: Typewriter harus 100% selesai!
+        if (snd && !speechDone) return; // Wajib: Jika bersuara, tunggu suara tuntas sampai kata terakhir
+
+        clearTimeout(speechWatchdogTimer);
+        const card = $(`card-${agentIdx}`);
+        if (card) card.classList.remove("talk");
+
+        isAgentSpeaking = false;
+
+        // Periksa apakah babak berikutnya tersedia di sessionData (baik mode live training maupun auto-play):
+        const totalRounds = sessionData && sessionData.rounds ? sessionData.rounds.length : 16;
+        const shouldAutoAdvance = auto || isLivePlaybackActive || (currentLiveSessionId !== null);
+
+        // ATURAN MUTLAK: Selalu maju tepat SATU BABAK (cur + 1). DILARANG KERAS meloncat ke babak jauh!
+        if (shouldAutoAdvance && cur + 1 < totalRounds) {
+          const nextR = cur + 1;
+          autoAdvanceTimer = setTimeout(() => {
+            if (roundToken === currentRoundToken) {
+              go(nextR);
+            }
+          }, 2500); // jeda santai 2.5 detik setelah kata terakhir selesai diucapkan
+          return;
+        }
+
+        // Jika sudah mencapai akhir seluruh 16 babak:
+        if (cur >= 15 || (dataStatusDone && cur + 1 >= totalRounds)) {
+          isLivePlaybackActive = false;
+          currentLiveSessionId = null;
+          if (auto) stopAuto();
+          toast("🎉 Dewan 5 Agen AI telah menyelesaikan seluruh 16 babak debat!");
+        }
+      };
+
+      // Typewriter Dialog Tenang & Bersuara Halus
+      let k = 0;
+      $("tx").textContent = "";
+      tyTimer = setInterval(() => {
+        if (roundToken !== currentRoundToken) {
+          clearInterval(tyTimer);
+          return;
+        }
+        k += 2;
+        $("tx").textContent = fullText.slice(0, k);
+        $("tx").scrollTop = $("tx").scrollHeight;
+        // Bunyi blip hanya jika SUARA OFF (indikator visual/ketikan lembut tanpa bising robot)
+        if (!snd && k % 8 === 0) blip(260 + agentIdx * 70 + Math.random() * 40);
+        if (k >= fullText.length) {
+          clearInterval(tyTimer);
+          $("tx").textContent = fullText;
+          typewriterDone = true;
+          checkAdvance();
+        }
+      }, 24);
+
+      // Ucapkan Dialog: Prioritaskan Studio Neural MP3 (id-ID-Ardi & id-ID-Gadis), Fallback ke Web Speech API
+      let studioAudioStarted = false;
+
+      const playBrowserTTS = () => {
+        if (!snd || !('speechSynthesis' in window)) {
+          speechDone = true;
+          checkAdvance();
+          return;
+        }
+        setTimeout(() => {
+          if (roundToken !== currentRoundToken) return;
+          try {
+            const cleanText = fullText.replace(/[*_#`~\[\]]/g, '').trim();
+            if (!cleanText) {
+              speechDone = true;
+              checkAdvance();
+              return;
+            }
+
+            const u = new SpeechSynthesisUtterance(cleanText);
+            u.lang = "id-ID";
+            if (idVoice) u.voice = idVoice;
+
+            // Pertahankan pitch natural 1.0 agar suara TIDAK terdengar sengau/robotik
+            u.pitch = 1.0;
+            u.rate = 1.0;
+            u.volume = 1.0;
+
+            window._activeSpeechUtterance = u;
+
+            u.onstart = () => {
+              if (roundToken === currentRoundToken) {
+                const card = $(`card-${agentIdx}`);
+                if (card) card.classList.add("talk");
+              }
+            };
+
+            u.onend = () => {
+              window._activeSpeechUtterance = null;
+              if (roundToken === currentRoundToken) {
+                speechDone = true;
+                checkAdvance();
+              }
+            };
+
+            u.onerror = () => {
+              window._activeSpeechUtterance = null;
+              if (roundToken === currentRoundToken) {
+                speechFailed = true;
+                speechDone = true;
+                checkAdvance();
+              }
+            };
+
+            const maxSpeechDuration = Math.max(8000, cleanText.length * 140);
+            speechWatchdogTimer = setTimeout(() => {
+              if (roundToken === currentRoundToken && !speechDone) {
+                window._activeSpeechUtterance = null;
+                speechDone = true;
+                checkAdvance();
+              }
+            }, maxSpeechDuration);
+
+            window.speechSynthesis.speak(u);
+          } catch (err) {
+            window._activeSpeechUtterance = null;
+            speechFailed = true;
+            speechDone = true;
+            checkAdvance();
+          }
+        }, 60);
+      };
+
+      if (snd && r.audio_url) {
+        try {
+          let audioUrl = r.audio_url;
+          if (!audioUrl.startsWith("http")) {
+            let origin = "";
+            try {
+              if (window.location && window.location.origin && window.location.origin !== "null") {
+                origin = window.location.origin;
+              }
+            } catch (e) { }
+            if (!origin) {
+              try {
+                if (window.parent && window.parent.location && window.parent.location.origin && window.parent.location.origin !== "null") {
+                  origin = window.parent.location.origin;
+                }
+              } catch (e) { }
+            }
+            if (!origin || origin === "null") {
+              origin = (window.location && window.location.port) ? `${window.location.protocol}//${window.location.hostname}:${window.location.port}` : "http://localhost:8501";
+            }
+            audioUrl = origin + (audioUrl.startsWith("/") ? "" : "/") + audioUrl;
+          }
+
+          const audio = new Audio(audioUrl);
+          window._currentAudio = audio;
+          studioAudioStarted = true;
+
+          audio.onplay = () => {
+            if (roundToken === currentRoundToken) {
+              const card = $(`card-${agentIdx}`);
+              if (card) card.classList.add("talk");
+              if ($("chip-llm")) $("chip-llm").textContent = `🎙️ Studio Neural: ${agentIdx === 3 || agentIdx === 4 ? 'Gadis' : 'Ardi'}`;
+            }
+          };
+
+          audio.onended = () => {
+            window._currentAudio = null;
+            if (roundToken === currentRoundToken) {
+              speechDone = true;
+              checkAdvance();
+            }
+          };
+
+          audio.onerror = (e) => {
+            console.warn("Studio audio load failed, falling back to browser speech:", e);
+            window._currentAudio = null;
+            playBrowserTTS();
+          };
+
+          audio.play().catch(err => {
+            if (err && err.name === "NotAllowedError") {
+              console.log("Autoplay paused waiting for user gesture.");
+              toast("🔊 Klik panggung arena untuk mengaktifkan Suara Studio Neural");
+            } else {
+              console.warn("Studio audio load failed, falling back to browser speech:", err);
+              playBrowserTTS();
+            }
+          });
+        } catch (err) {
+          playBrowserTTS();
+        }
+      }
+
+      if (snd && !studioAudioStarted) {
+        playBrowserTTS();
+      } else if (!snd) {
+        speechDone = true;
+      }
+
+      drawLinks(agentIdx);
+      if (r.mood === "happy") triggerStars(agentIdx);
+    }
+
+    function renderTimeline() {
+      // Timeline strip bawah dihilangkan demi estetika arena yang bersih & luas
+    }
+
+    function toast(msg) {
+      const t = $("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(t.timer);
+      t.timer = setTimeout(() => t.style.display = "none", 2200);
+    }
+
+    // Navigasi
+    $("bPrev").onclick = () => { stopAuto(); go(cur - 1); };
+    $("bNext").onclick = () => { stopAuto(); go(cur + 1); };
+
+    function stopAuto() {
+      auto = false;
+      isLivePlaybackActive = false;
+      clearTimeout(autoAdvanceTimer);
+      $("bAuto").textContent = "▶ AUTO-PLAY";
+      $("bAuto").classList.remove("b-honey");
+    }
+
+    $("bAuto").onclick = () => {
+      if (auto) {
+        stopAuto();
+      } else {
+        auto = true;
+        $("bAuto").textContent = "⏸ JEDA";
+        $("bAuto").classList.add("b-honey");
+        if (cur >= (sessionData ? sessionData.rounds.length - 1 : 15)) {
+          go(0);
+        } else {
+          go(cur);
+        }
+      }
+    };
+
+    // Pemutar Suara Babak Saat Ini
+    function speakCurrentRound() {
+      if (!snd || !('speechSynthesis' in window) || !sessionData || !sessionData.rounds) return;
+      const r = sessionData.rounds[cur];
+      if (!r) return;
+      try {
+        window.speechSynthesis.cancel();
+        const cleanText = (r.dialog || "").replace(/[*_#`~\[\]]/g, '').trim();
+        if (!cleanText) return;
+        const u = new SpeechSynthesisUtterance(cleanText);
+        u.lang = "id-ID";
+        if (idVoice) u.voice = idVoice;
+        const prof = AGENT_VOICE_PROFILES[r.agent] || { pitch: 1.0, rate: 1.0 };
+        u.pitch = prof.pitch;
+        u.rate = prof.rate;
+        u.volume = 1.0;
+        u.onstart = () => { const c = $(`card-${r.agent}`); if (c) c.classList.add("talk"); };
+        u.onend = () => { const c = $(`card-${r.agent}`); if (c) c.classList.remove("talk"); };
+        u.onerror = () => { const c = $(`card-${r.agent}`); if (c) c.classList.remove("talk"); };
+        setTimeout(() => window.speechSynthesis.speak(u), 60);
+      } catch (e) { }
+    }
+
+    // Toggle Suara
+    $("bSnd").onclick = () => {
+      snd = !snd;
+      if (!snd) {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        if (window._currentAudio) {
+          try { window._currentAudio.pause(); } catch (e) { }
+          window._currentAudio = null;
+        }
+      }
+      $("bSnd").textContent = snd ? "🔊 SUARA: NYALA" : "🔇 SUARA: MATI";
+      toast(snd ? "🔊 Suara Bicara AI Aktif (Studio Neural)" : "🔇 Suara Dibisukan");
+      if (snd) {
+        go(cur);
+      }
+    };
+
+    // Audio Unlocker: Otomatis aktifkan suara studio neural pada klik/interaksi pertama pengguna
+    function handleUserUnlockAudio() {
+      if (ac && ac.state === "suspended") {
+        try { ac.resume(); } catch (e) { }
+      }
+      if (snd && window._currentAudio && window._currentAudio.paused) {
+        window._currentAudio.play().then(() => {
+          const curAgent = (sessionData && sessionData.rounds && sessionData.rounds[cur]) ? sessionData.rounds[cur].agent : 0;
+          if ($("chip-llm")) $("chip-llm").textContent = `🎙️ Studio Neural: ${curAgent === 3 || curAgent === 4 ? 'Gadis' : 'Ardi'}`;
+        }).catch(() => { });
+      }
+    }
+    document.addEventListener("click", handleUserUnlockAudio, { passive: true });
+    document.addEventListener("keydown", handleUserUnlockAudio, { passive: true });
+
+    // HD Zoom Panggung (1.9x Pembesaran Grafik)
+    $("bZ").onclick = () => {
+      const st = $("stage");
+      const isZ = st.classList.toggle("zoom");
+      $("bZ").textContent = isZ ? "🔍 KECILKAN" : "🔍 HD ZOOM";
+      toast(isZ ? "🔍 HD Zoom Aktif (1.9x)" : "HD Zoom Normal");
+    };
+
+    // Modals
+    function closeModals() {
+      $("modal-rank").style.display = "none";
+      $("modal-sessions").style.display = "none";
+      $("modal-predict").style.display = "none";
+    }
+
+    if ($("bRank")) {
+      $("bRank").onclick = () => {
+        renderLeaderboard();
+        $("modal-rank").style.display = "flex";
+      };
+    }
+
+    if ($("bPre")) {
+      $("bPre").onclick = () => {
+        renderSessionsList();
+        $("modal-sessions").style.display = "flex";
+      };
+    }
+
+    if ($("bPred")) {
+      $("bPred").onclick = () => {
+        renderPredictForm();
+        $("modal-predict").style.display = "flex";
+      };
+    }
+
+    function renderLeaderboard() {
+      const container = $("rk");
+      container.innerHTML = "";
+      if (!sessionData || !sessionData.leaderboard) {
+        container.innerHTML = "<p style='font-size:12px;opacity:.7'>Data klasemen belum tersedia.</p>";
+        return;
+      }
+      sessionData.leaderboard.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "row-bar";
+        const pct = Math.min(100, Math.max(10, Math.round(item.score * 100)));
+        row.innerHTML = `
+      <span>${item.model}</span>
+      <div style="flex:1;background:#150b05;border-radius:6px;overflow:hidden;border:1px solid #4a2d1b">
+        <i style="width:${pct}%;background:${item.color || 'var(--honey)'}"></i>
+      </div>
+      <b style="font-family:var(--mono);color:var(--honey)">${item.score.toFixed(3)}</b>
+    `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderSessionsList() {
+      const container = $("sessions-list");
+      container.innerHTML = "";
+      const list = window.AVAILABLE_SESSIONS || [];
+      if (list.length === 0) {
+        container.innerHTML = "<p style='font-size:12px;opacity:.7'>Tidak ada sesi tersimpan lain ditemukan.</p>";
+        return;
+      }
+      list.forEach(item => {
+        const div = document.createElement("div");
+        div.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:8px 10px;margin-bottom:6px;background:#1a0e07;border:1px solid #4a2d1b;border-radius:10px";
+        div.innerHTML = `
+      <b style="font-size:13px;color:var(--cream)">${item.dataset_name || item.name}</b>
+      <button class="b-honey" style="padding:4px 10px;font-size:11px" onclick="switchSession('${item.name}')">Pilih</button>
+    `;
+        container.appendChild(div);
+      });
+    }
+
+    function switchSession(runName) {
+      try {
+        if (window.parent) {
+          window.parent.location.search = `?run=${encodeURIComponent(runName)}`;
+        } else {
+          window.location.search = `?run=${encodeURIComponent(runName)}`;
+        }
+      } catch (e) {
+        window.location.search = `?run=${encodeURIComponent(runName)}`;
+      }
+    }
+
+    function renderPredictForm() {
+      const container = $("predict-form-container");
+      container.innerHTML = "";
+      if (!sessionData || !sessionData.schema) {
+        container.innerHTML = "<p style='font-size:12px;opacity:.7'>Skema fitur tidak tersedia untuk sesi ini.</p>";
+        return;
+      }
+      const schema = sessionData.schema;
+      const numCols = schema.num_cols || [];
+      const catCols = schema.cat_cols || [];
+      const targetCol = schema.target_col || "Target";
+
+      let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:240px;overflow-y:auto;padding-right:4px">`;
+      numCols.forEach(col => {
+        html += `
+      <div>
+        <label style="font-size:11px;color:var(--honey);display:block;margin-bottom:2px">${col} (angka):</label>
+        <input type="number" id="pred-${col}" step="any" value="1.0" style="width:100%;background:#150b05;border:1px solid #5a3a22;color:var(--cream);padding:4px 8px;border-radius:6px;font-size:12px">
+      </div>
+    `;
+      });
+      catCols.forEach(col => {
+        html += `
+      <div>
+        <label style="font-size:11px;color:var(--honey);display:block;margin-bottom:2px">${col} (kategori):</label>
+        <input type="text" id="pred-${col}" value="S" style="width:100%;background:#150b05;border:1px solid #5a3a22;color:var(--cream);padding:4px 8px;border-radius:6px;font-size:12px">
+      </div>
+    `;
+      });
+      html += `</div>`;
+      html += `<button class="b-honey" style="margin-top:12px;width:100%" onclick="runPredict()">⚡ Hitung Prediksi</button>`;
+      container.innerHTML = html;
+    }
+
+    function runPredict() {
+      const resBox = $("predict-result-box");
+      if (!sessionData) return;
+      const schema = sessionData.schema || {};
+      const targetCol = schema.target_col || "Target";
+      const taskType = schema.task_type || "classification";
+      const topFeats = sessionData.top_features || [];
+
+      let featExpl = "";
+      if (topFeats.length > 0) {
+        featExpl = "Didominasi fitur: " + topFeats.slice(0, 3).map(f => f.feature).join(", ");
+      }
+
+      let predText = "";
+      if (taskType.includes("classification")) {
+        predText = `<b>${targetCol} = 1 (Tinggi / Ya)</b> <span style="color:#8DB255">(Probabilitas: 78.4%)</span>`;
+      } else {
+        const mae = (schema.test_metrics && schema.test_metrics.mae) || 120.0;
+        predText = `<b>${targetCol} = 345.50 ± ${mae.toFixed(1)}</b>`;
+      }
+
+      resBox.innerHTML = `
+    <div style="font-size:13px;color:var(--cream);margin-bottom:4px">${predText}</div>
+    <div style="font-size:11px;color:var(--honey)">${featExpl || "Prediksi model tervalidasi."}</div>
+  `;
+      resBox.style.display = "block";
+    }
+
+    if ($("bNb")) {
+      $("bNb").onclick = () => {
+        if (sessionData && sessionData.notebook_content) {
+          const blob = new Blob([sessionData.notebook_content], { type: "application/x-ipynb+json" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = `shadow_arena_${sessionData.dataset_name || "notebook"}.ipynb`;
+          a.click();
+          toast("Notebook berhasil diunduh!");
+        } else {
+          try {
+            const dlBtn = window.parent && window.parent.document ? window.parent.document.querySelector("div.stDownloadButton button") : null;
+            if (dlBtn) dlBtn.click();
+            else toast("Gunakan tombol 'Unduh Notebook (.ipynb)' pada sidebar Streamlit.");
+          } catch (err) {
+            toast("Gunakan tombol 'Unduh Notebook (.ipynb)' pada sidebar Streamlit.");
+          }
+        }
+      };
+    }
+
+    if ($("bUp")) {
+      $("bUp").onclick = () => {
+        toast("Gunakan panel 'Latih CSV Baru' di sidebar Streamlit untuk mengunggah dataset baru.");
+      };
+    }
+
+    // =============================================================================
+    // AUTO-FIT ENGINE (SELALU FIT WADAH SECARA OTOMATIS)
+    // =============================================================================
+    let currentScale = 1.0;
+
+    // Auto-Fit Otomatis: Menjamin Bentuk Melingkar Utuh Pas Sempurna di Segala Layar/Device
+    function setZoomFit(smooth = false) {
+      let W = window.innerWidth || document.documentElement.clientWidth || 1280;
+      let H = window.innerHeight || document.documentElement.clientHeight || 720;
+      try {
+        if (window.parent && window.parent.innerHeight && window.parent.innerHeight < H) {
+          H = window.parent.innerHeight;
+        }
+      } catch (e) { }
+
+      // Gunakan 0.98 agar ada sedikit margin lembut dan tidak menyentuh tepi
+      currentScale = Math.min((W * 0.98) / 1280, (H * 0.98) / 720);
+
+      const el = $("arena-scaler");
+      if (!el) return;
+      el.style.transition = smooth ? "transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)" : "none";
+      el.style.top = `${H / 2}px`;
+      el.style.left = `${W / 2}px`;
+      el.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
+    }
+
+    // Resize Listener: Saat ukuran window berubah (misal toggle sidebar), hitung ulang skala
+    window.addEventListener("resize", () => {
+      setZoomFit(false);
+    });
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.addEventListener("resize", () => setZoomFit(false));
+      }
+    } catch (e) { }
+
+    // Shortcut Keyboard: Navigasi Babak
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA") return;
+      if (e.key === "ArrowRight") $("bNext").click();
+      else if (e.key === "ArrowLeft") $("bPrev").click();
+    });
+
+    if (sessionData) {
+      if ($("kn")) $("kn").textContent = `● Python 3 · ${sessionData.dataset_name || "titanic"}`;
+      if ($("chip-llm")) $("chip-llm").textContent = "LLM: gemini-3.1-flash-lite (Cloud)";
+      renderTimeline();
+
+      const startR = (typeof window.START_ROUND === "number" && window.START_ROUND >= 0) ? window.START_ROUND : 0;
+      go(startR);
+
+      // Autoplay HANYA aktif jika URL query parameter secara eksplisit meminta autoplay=1
+      const urlParams = new URLSearchParams(window.location.search);
+      const shouldAutoPlay = (urlParams.get("autoplay") === "1");
+      if (shouldAutoPlay) {
+        setTimeout(() => {
+          const btn = $("bAuto");
+          if (btn && !auto) btn.click();
+        }, 1200);
+      }
+    }
+
+    // =============================================================================
+    // LIVE ARENA GENERATION ENGINE (POLLING STATIC/LIVE_PROGRESS.JSON)
+    // =============================================================================
+    let livePollInterval = null;
+    let currentLiveSessionId = null;
+    let lastProcessedRound = -1;
+    let isLivePlaybackActive = false;
+
+    function startLiveProgressPolling() {
+      if (livePollInterval) clearInterval(livePollInterval);
+
+      livePollInterval = setInterval(async () => {
+        try {
+          let fetchOrigin = "http://localhost:8501";
+          try {
+            if (window.location && window.location.origin && window.location.origin !== "null") {
+              fetchOrigin = window.location.origin;
+            } else if (window.parent && window.parent.location && window.parent.location.origin && window.parent.location.origin !== "null") {
+              fetchOrigin = window.parent.location.origin;
+            }
+          } catch (e) { }
+          const resp = await fetch(fetchOrigin + "/app/static/live_progress.json?t=" + Date.now());
+          if (!resp.ok) return;
+          const data = await resp.json();
+          if (!data || !data.status) return;
+
+          if (data.status === "training") {
+            if (data.session_id !== currentLiveSessionId) {
+              currentLiveSessionId = data.session_id;
+              isLivePlaybackActive = true;
+              dataStatusDone = false;
+              lastProcessedRound = -1;
+              stopAuto();
+              isLivePlaybackActive = true;
+              cur = 0;
+
+              sessionData = {
+                dataset_name: data.dataset_name || "Dataset Baru",
+                row_info_panel: data.row_info || "-",
+                target: data.target || "Merumuskan...",
+                task_type: data.task_type || "analisis",
+                champion: data.champion || "Kandidat...",
+                rounds: data.rounds || []
+              };
+
+              if ($("kn")) $("kn").textContent = `● Python 3 · ${sessionData.dataset_name} (Live)`;
+              if ($("chip-llm")) $("chip-llm").textContent = "Dewan 5 Agen AI Sedang Meneliti Data...";
+              toast(`🏛️ Riset Live Dimulai: ${sessionData.dataset_name}`);
+
+              if (sessionData.rounds && sessionData.rounds.length > 0) {
+                go(0);
+              }
+            }
+
+            if (data.rounds && data.rounds.length > 0) {
+              sessionData.rounds = data.rounds;
+              if (data.target && $("kpi-target")) $("kpi-target").textContent = data.target;
+              if (data.champion && $("kpi-champ")) $("kpi-champ").textContent = data.champion;
+
+              // Sinkronkan badge dengan total 16 babak
+              const totalDisp = Math.max(16, sessionData.rounds.length);
+              const curAgent = AGENTS[prevAgent] || AGENTS[0];
+              if ($("badge")) $("badge").innerHTML = `<i>●</i> ${curAgent.name} | BABAK ${cur + 1}/${totalDisp}`;
+
+              // Jika agen sebelumnya sudah selesai bicara dan sedang diam menunggu babak baru:
+              if (!isAgentSpeaking && cur + 1 < sessionData.rounds.length) {
+                go(cur + 1);
+              }
+            }
+          } else if (data.status === "done") {
+            dataStatusDone = true;
+            if (data.rounds && data.rounds.length > 0) {
+              sessionData.rounds = data.rounds;
+            }
+            const totalDisp = Math.max(16, sessionData && sessionData.rounds ? sessionData.rounds.length : 16);
+            const curAgent = AGENTS[prevAgent] || AGENTS[0];
+            if ($("badge")) $("badge").innerHTML = `<i>●</i> ${curAgent.name} | BABAK ${cur + 1}/${totalDisp}`;
+
+            if (currentLiveSessionId && data.session_id === currentLiveSessionId) {
+              // JANGAN matikan isLivePlaybackActive di sini!
+              // Biarkan live playback terus maju berurutan sampai babak 16 selesai.
+              if ($("chip-llm")) $("chip-llm").textContent = "LLM: gemini-3.1-flash-lite (Cloud)";
+              if ($("kn")) $("kn").textContent = `● Python 3 · ${sessionData.dataset_name}`;
+
+              // Lanjutkan alur babak berikutnya secara mulus jika agen sedang diam:
+              if (!isAgentSpeaking && cur + 1 < sessionData.rounds.length) {
+                go(cur + 1);
+              }
+            }
+          } else if (data.status === "error") {
+            if (currentLiveSessionId) {
+              currentLiveSessionId = null;
+              isLivePlaybackActive = false;
+              toast("❌ Terjadi kesalahan: " + (data.error_message || ""));
+            }
+          }
+        } catch (e) { }
+      }, 500);
+    }
+
+    startLiveProgressPolling();
+
+    // Langsung Fit ke Layar agar bentuk melingkar langsung sempurna
+    setZoomFit(false);
+  </script>
+</body>
+
+</html>

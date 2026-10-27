@@ -1,0 +1,322 @@
+/* =============================================================================
+   KANVAS LOGIS ARENA 1280 x 666 (KOORDINAT REFERENSI Y-OFFSET -54PX)
+   ============================================================================= */
+#arena {
+  position: absolute;
+  width: var(--arena-w);
+  height: var(--arena-h);
+  transform-origin: center center;
+  overflow: visible;
+  background: transparent;
+  pointer-events: auto;
+}
+
+/* 1. JALUR DATA SVG */
+#links {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ln {
+  fill: none;
+  stroke: rgba(255, 236, 200, 0.1);
+  stroke-width: 2;
+  stroke-dasharray: 3 6;
+  transition: stroke 0.3s;
+}
+
+.ln.on {
+  stroke-width: 3.5;
+  stroke-dasharray: 8 6;
+  animation: flow 1s linear infinite;
+  filter: drop-shadow(0 0 4px var(--c));
+}
+
+@keyframes flow {
+  to { stroke-dashoffset: -14; }
+}
+
+/* 2. PANGGUNG GRAFIK (STAGE) */
+#stage {
+  position: absolute;
+  left: 450px;
+  top: 141px;
+  width: 380px;
+  height: 230px;
+  background: var(--bg-1);
+  border: 2.5px solid var(--honey);
+  border-radius: 22px;
+  box-shadow: 0 0 26px rgba(232, 176, 74, 0.4);
+  z-index: 6;
+  overflow: hidden;
+}
+
+#sh {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font: 700 12px var(--font-brand);
+  color: var(--honey);
+  letter-spacing: 1px;
+  background: #2a170c;
+  border-bottom: 1.5px solid var(--border);
+}
+
+#sh .dots {
+  display: flex;
+  gap: 5px;
+}
+
+#sh .dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: block;
+}
+
+#sh code {
+  font: 700 10.5px var(--mono);
+  color: var(--moss);
+}
+
+#sc {
+  height: 196px;
+  padding: 2px 8px 0;
+  overflow: hidden;
+}
+
+#sc svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 3. JUDUL BABAK (MILESTONE) */
+#ms {
+  position: absolute;
+  left: 460px;
+  top: 376px;
+  width: 360px;
+  height: 26px;
+  border-radius: 20px;
+  background: var(--bg-4);
+  border: 2px solid var(--honey);
+  text-align: center;
+  font: 700 13px/22px var(--font-brand);
+  color: var(--honey);
+  z-index: 6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 10px;
+}
+
+/* 4. BALON BICARA (SPEECH BUBBLE) */
+#bub {
+  position: absolute;
+  left: 345px;
+  top: 408px;
+  width: 590px;
+  height: 116px;
+  background: var(--bg-3);
+  border: 2.5px solid var(--c, var(--honey));
+  border-radius: 26px 30px 24px 30px;
+  padding: 8px 16px;
+  z-index: 7;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--c, var(--honey)) 40%, transparent);
+  transition: border-color var(--trans-med), box-shadow var(--trans-med);
+}
+
+#tail {
+  position: absolute;
+  width: 22px;
+  height: 14px;
+  background: var(--c, var(--honey));
+  clip-path: polygon(50% 0, 0 100%, 100% 100%);
+  transition: background var(--trans-med);
+}
+
+#bh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 12px var(--font-brand);
+  color: var(--c, var(--honey));
+}
+
+#bh em {
+  font-style: normal;
+  color: var(--cream);
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.eq {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 12px;
+}
+
+.eq s {
+  width: 3px;
+  background: var(--c, var(--honey));
+  border-radius: 2px;
+  animation: eq-bounce 0.4s infinite alternate;
+}
+
+.eq s:nth-child(2) { animation-delay: 0.1s; }
+.eq s:nth-child(3) { animation-delay: 0.2s; }
+.eq s:nth-child(4) { animation-delay: 0.05s; }
+
+@keyframes eq-bounce {
+  from { height: 3px; }
+  to { height: 12px; }
+}
+
+#tx {
+  font-size: 14px;
+  line-height: 1.35;
+  margin-top: 3px;
+  height: 57px;
+  overflow: hidden;
+  font-weight: 700;
+  color: var(--cream);
+}
+
+#ev {
+  font: 600 11px var(--mono);
+  color: var(--honey);
+  background: var(--bg-0);
+  border-radius: 8px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+#eo {
+  flex: none;
+}
+
+#et {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 5. STRIP PIPELINE */
+#pipe {
+  position: absolute;
+  left: 345px;
+  top: 536px;
+  width: 590px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 6;
+  font: 700 10.5px var(--mono);
+}
+
+#pipe span {
+  padding: 3px 9px;
+  border-radius: 12px;
+  background: var(--bg-3);
+  border: 1.5px solid var(--border-dark);
+  color: #c9b08a;
+  transition: var(--trans-med);
+}
+
+#pipe span.done {
+  color: var(--cream);
+  border-color: var(--moss);
+}
+
+#pipe span.act {
+  background: var(--honey);
+  color: #2a1507;
+  border-color: var(--honey);
+  transform: scale(1.07);
+}
+
+#pipe b {
+  color: #6e4d32;
+}
+
+/* 6. PRATINJAU DATAFRAME */
+#df {
+  position: absolute;
+  left: 345px;
+  top: 568px;
+  width: 590px;
+  height: 90px;
+  background: rgba(21, 11, 5, 0.85);
+  border: 1.5px solid var(--border-dark);
+  border-radius: 12px;
+  padding: 4px 10px 5px;
+  font: 600 10.5px var(--mono);
+  z-index: 6;
+  overflow: hidden;
+}
+
+.dfc {
+  color: var(--honey);
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+#df table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#df th {
+  color: var(--honey);
+  text-align: right;
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+#df td {
+  text-align: right;
+  padding: 0 6px;
+  color: var(--cream);
+}
+
+#df tr:nth-child(even) td {
+  background: rgba(255, 226, 170, 0.06);
+}
+
+#df th:first-child,
+#df td:first-child {
+  color: var(--moss);
+  text-align: left;
+}
+
+/* Bintang Kemenangan / Emosi Happy */
+.star {
+  position: absolute;
+  color: #ffd36b;
+  font-size: 16px;
+  pointer-events: none;
+  animation: star-fly 0.95s forwards;
+  z-index: 30;
+}
+
+@keyframes star-fly {
+  to {
+    transform: translate(var(--dx), var(--dy)) rotate(200deg) scale(0.3);
+    opacity: 0;
+  }
+}

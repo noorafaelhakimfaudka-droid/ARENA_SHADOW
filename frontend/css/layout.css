@@ -1,0 +1,128 @@
+/* =============================================================================
+   LAYOUT SHELL TERINTEGRASI (ANTI-STIKER)
+   ============================================================================= */
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+/* 1. TOOLBAR ASLI (DOM NATIVE, LEBAR PENUH, TINGGI 56PX) */
+#toolbar {
+  height: var(--toolbar-h);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--bg-2);
+  border-bottom: 2px solid var(--border);
+  z-index: 25;
+  flex: none;
+}
+
+.tb-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.tb-center {
+  justify-content: center;
+}
+
+.tb-right {
+  justify-content: flex-end;
+}
+
+#kn {
+  font: 700 11.5px var(--mono);
+  color: var(--moss);
+  background: var(--bg-1);
+  border: 1.5px solid #3d5a1f;
+  border-radius: 12px;
+  padding: 5px 11px;
+  white-space: nowrap;
+}
+
+.mode-badge {
+  font: 800 10.5px var(--font-brand);
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.mode-badge.llm {
+  background: rgba(91, 155, 181, 0.2);
+  border: 1.5px solid var(--lake);
+  color: var(--lake);
+}
+
+.mode-badge.offline {
+  background: rgba(227, 167, 47, 0.2);
+  border: 1.5px solid var(--ochre);
+  color: var(--ochre);
+}
+
+.mode-badge.demo {
+  background: rgba(141, 178, 85, 0.2);
+  border: 1.5px solid var(--moss);
+  color: var(--moss);
+}
+
+#badge {
+  font: 800 12.5px var(--font-brand);
+  padding: 7px 16px;
+  border-radius: 20px;
+  background: #120a05;
+  border: 2px solid var(--c, var(--moss));
+  min-width: 210px;
+  text-align: center;
+  transition: var(--trans-med);
+}
+
+#badge i {
+  color: var(--c, var(--moss));
+  font-style: normal;
+  margin-right: 6px;
+}
+
+/* 2. KONTAINER ARENA (VIEWPORT FLEKSIBEL DI BAWAH TOOLBAR) */
+#arena-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: calc(100vh - var(--toolbar-h));
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3. TOAST */
+#toast {
+  position: fixed;
+  left: 50%;
+  top: 68px;
+  transform: translateX(-50%);
+  background: var(--honey);
+  color: #2a1507;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  display: none;
+  animation: toast-fade 0.25s ease-out;
+}
+
+@keyframes toast-fade {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
