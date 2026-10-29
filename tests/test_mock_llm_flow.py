@@ -137,3 +137,38 @@ def test_full_pipeline_with_mock_llm(tmp_path: Path):
     pred_res = predict_single_or_batch(run_dir, {"age": 28, "bmi": 24.5, "sex": "female"})
     assert len(pred_res["predictions"]) == 1
     assert "charges" in pred_res["predictions"][0]["formatted_output"]
+
+
+def test_cmd_train_progress_callback(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Memastikan cmd_train dengan progress_cb berjalan mulus tanpa NameError time."""
+    import argparse
+    import main
+
+    csv_file = tmp_path / "mock_cb.csv"
+    df = pd.DataFrame({
+        "age": [20, 30, 40, 50, 60, 25, 35, 45, 55, 65],
+        "bmi": [22.0, 25.5, 30.1, 28.4, 32.0, 21.0, 26.0, 29.0, 31.0, 33.0],
+        "sex": ["male", "female", "male", "female", "male", "female", "male", "female", "male", "female"],
+        "charges": [1500.0, 2800.0, 4500.0, 6200.0, 8900.0, 1900.0, 3400.0, 5100.0, 7500.0, 9900.0]
+    })
+    df.to_csv(csv_file, index=False)
+
+    out_dir = tmp_path / "out_cb"
+    args = argparse.Namespace(
+        csv_file=str(csv_file),
+        target="charges",
+        out=str(out_dir)
+    )
+
+    # Percepat sleep
+    monkeypatch.setattr(main.time, "sleep", lambda x: None)
+
+    callbacks_received = []
+    def dummy_cb(agent_key: str, msg: str, extra: Any = None):
+        callbacks_received.append((agent_key, msg))
+
+    state = main.cmd_train(args, progress_cb=dummy_cb)
+    assert state is not None
+    assert len(callbacks_received) >= 5
+    assert any("PROBLEM FRAMER" in msg for _, msg in callbacks_received)
+
